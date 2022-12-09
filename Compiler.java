@@ -7,6 +7,7 @@ public class Compiler {
     String fileContents;
     Compiler(String filepath){
         this.fileContents = getFileContents(filepath);
+        Lexer lexer = new Lexer(fileContents);
     }
 
     public String getFileContents(String filepath)
