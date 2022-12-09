@@ -16,10 +16,12 @@ public class Lexer {
     int charIdx = 0;
     int charClass;
     String lexeme = "";
+    int currentToken;
 
 /* ******************************************************************************************************* */
     /* LEXER CONSTRUCTOR  */
     Lexer(String fileContent){
+        new Tokens();
         this.fileContent = fileContent;
         this.tokens = null;
         getTokens();
@@ -54,25 +56,94 @@ public class Lexer {
     }
 
 /* ******************************************************************************************************* */
+    /* addChar: This is the function that adds a new character to the existing lexeme */
+    public void addChar()
+    {
+        lexeme += currentChar;
+    }
+
+/* ******************************************************************************************************* */
     /* getNonComments: This is a function to keep calling for a new character until it is a non-whitespace character and not a comment */
     public void getNonComments()
     {
+        //Ignore WhiteSpace characters
         while(Character.isWhitespace(currentChar))
         {
             getTokens();
         }
+        //Ignore Block Comments
+        if(currentChar == '/' && fileContent.charAt(charIdx++) == '*')
+        {
+            charIdx += 2;
+            while(currentChar != '*' && fileContent.charAt(charIdx++) != '/')
+            {
+                charIdx++;
+                currentChar = fileContent.charAt(charIdx);
+            }
+            charIdx += 1;
+            getTokens();
+        }
     }
+
+/* ******************************************************************************************************* */
+    /* identifyKeyword: This function is to check if the current lexeme is equal to any keyword in the language and match the token code  */
+    public void identifyKeyword(){
+         switch(lexeme){
+            case "assume":
+                 currentToken = Tokens.IF_KEY.tokenCode;
+                 break;
+            case "reiterate"
+                currentToken = Tokens.LOOP_KEY.tokenCode;
+                break;
+            case "WORD":
+                currentToken = Tokens.STR_DT_KEY.tokenCode;
+                break;
+            case "ENTITY":
+                currentToken = Tokens.CHAR_DT_KEY.tokenCode;
+                break;
+            case "NUM":
+                currentToken = Tokens.NATURAL_DT_KEY.tokenCode;
+                break;
+            case "HALF_NUM":
+                currentToken = Tokens.REAL_DT_KEY.tokenCode;
+                break;
+            case "BOOL":
+                currentToken = Tokens.BOOL_DT_KEY.tokenCode;
+                break;
+            case "vars":
+                currentToken = Tokens.VAR_ID.tokenCode;
+                break;
+            case "funcs":
+                currentToken = Tokens.FUNC_ID.tokenCode;
+                break;
+         }
+    }
+
 /* ******************************************************************************************************* */
     /* lexerAnalyzer: This is the main function for the lexical analyzer to get the token codes for each character class until the end of the string is reached */
     public void lexerAnalyzer()
     {
         getNonComments();
-        System.out.println("Char: " + currentChar);
+        switch(charClass){
+            case LETTER:
+                addChar();
+                getTokens();
+                while(charClass == LETTER || charClass == UNKNOWN && currentChar == '_'){
+                    addChar();
+                    getTokens();
+                }
+                identifyKeyword();
+                break;
+
+        }
     }
 
 }
 
 
+
+
+/* ******************************************************************************************************* */
 /* STORES ALL THE TOKEN CODES FOR THE PROGRAMMING LANGUAGE*/
 class Tokens{
     //Token Codes For Data Types
