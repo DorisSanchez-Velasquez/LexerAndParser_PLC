@@ -1,3 +1,16 @@
+import java.util.*;
+import java.io.*;
+
 public class Compiler {
-    //Compiler class has a method that takes in an input file and converts it to one input str
+    //Takes in an input file
+    //Converts it to one input string
+    String fileContent;
+    Compiler(String filepath){
+        this.fileContent = getFileContents(filepath);
+    }
+
+    public String getFileContents(String filepath)
+    {
+        return filepath;
+    }
 }
