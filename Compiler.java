@@ -4,13 +4,28 @@ import java.io.*;
 public class Compiler {
     //Takes in an input file
     //Converts it to one input string
-    String fileContent;
+    String fileContents;
     Compiler(String filepath){
-        this.fileContent = getFileContents(filepath);
+        this.fileContents = getFileContents(filepath);
     }
 
     public String getFileContents(String filepath)
     {
-        return filepath;
+        String fileInput = "";
+        try{
+            BufferedReader myReader = new BufferedReader(new FileReader(filepath));
+            String line = myReader.readLine();
+            while(line != null)
+            {
+                fileInput = fileInput + line + " ";
+                line = myReader.readLine();
+            }
+            myReader.close();
+    
+        } catch(IOException error){
+            System.out.println(error);
+        }
+        System.out.println("File Input: " + fileInput);
+        return fileInput;
     }
 }
