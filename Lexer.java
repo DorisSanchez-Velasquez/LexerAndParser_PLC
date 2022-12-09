@@ -1,9 +1,24 @@
 import java.util.*;
+import java.io.*;
 
 public class Lexer {
-    //The lexer classes will store all the token codes
+    /* GLOBAL DECLARATIONS */
+    //Character Classes
+    static final int LETTER = 0;
+    static final int DIGIT = 1;
+    static final int UNKNOWN = 99;
+    static final int EOF = -1;
+
+    //Variables
     List<Token> tokens;
     String fileContent;
+    Character currentChar;
+    int charIdx = 0;
+    int charClass;
+    String lexeme = "";
+
+/* ******************************************************************************************************* */
+    /* LEXER CONSTRUCTOR  */
     Lexer(String fileContent){
         this.fileContent = fileContent;
         this.tokens = null;
@@ -15,9 +30,44 @@ public class Lexer {
         return tokens;
     }
 
+/* ******************************************************************************************************* */
+    /* getTokens: This is a function to get the next character from the input file and find out the character class */
     public void getTokens()
     {
-        
+          while(charIdx < fileContent.length())
+          {
+                currentChar = fileContent.charAt(charIdx);
+                charIdx++;
+                if(Character.isLetter(currentChar)){
+                    charClass = LETTER;
+                }
+                else if(Character.isDigit(currentChar)){
+                    charClass = DIGIT;
+                }
+                else{
+                    charClass = EOF;
+                }
+
+                lexeme = "";
+                lexerAnalyzer();
+          }
+    }
+
+/* ******************************************************************************************************* */
+    /* getNonComments: This is a function to keep calling for a new character until it is a non-whitespace character and not a comment */
+    public void getNonComments()
+    {
+        while(Character.isWhitespace(currentChar))
+        {
+            getTokens();
+        }
+    }
+/* ******************************************************************************************************* */
+    /* lexerAnalyzer: This is the main function for the lexical analyzer to get the token codes for each character class until the end of the string is reached */
+    public void lexerAnalyzer()
+    {
+        getNonComments();
+        System.out.println("Char: " + currentChar);
     }
 
 }
