@@ -80,6 +80,15 @@ Define the attribute grammar for your assignment statement, make sure it follow 
 ## Valid Assignment Statements
 Choose 3 syntactically valid assignment statements with at least 7 tokens to show these rules failing or passing semantic rules
 
+- declare STRING @exprA = @exprB + @exprC;
+- declare HALF_NUM @num = 98.5 + 5;
+- declare ENTITY @char = "45 + 54";
+
 ## Axiomatic Semantics
 Find weakest preconditions: 
+- a. Weakest Precondition( {b > 3/2 } )
+- b. Weakest Precondition ( 3 * x < 0 )
+- c. Weakest Precondition ( a * 2 * (b-1) – 1 < 0 )
+- d. Weakest Precondition ( a > 5 )
+
 
