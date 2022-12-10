@@ -2,7 +2,7 @@ launch
     declare NUM @x = 95;
     declare HALF_NUM @Y = 8.5;
 
-    assume(@x > @y)
+    assume(@x > @Y)
     {
         @x = @x + @y;
     }

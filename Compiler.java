@@ -26,7 +26,6 @@ public class Compiler {
         } catch(IOException error){
             System.out.println(error);
         }
-        System.out.println("File Input: " + fileInput);
         return fileInput;
     }
 }

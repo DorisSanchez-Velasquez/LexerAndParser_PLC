@@ -10,7 +10,7 @@ public class Lexer {
     static final int EOF = -1;
 
     //Variables
-    List<Token> tokens;
+    List<Token> tokensList;
     String fileContent;
     Character currentChar;
     int charIdx = 0;
@@ -23,13 +23,18 @@ public class Lexer {
     Lexer(String fileContent){
         new Tokens();
         this.fileContent = fileContent;
-        this.tokens = null;
+        this.tokensList = new ArrayList<Token>();
         tokenDriver();
+        tokenize();
     }
 
     public List<Token> tokenize()
     {
-        return tokens;
+        for(int x = 0; x < tokensList.size(); x++)
+        {
+            System.out.print(tokensList.get(x).tokenCode + ", ");
+        }
+        return tokensList;
     }
 
     public void tokenDriver()
@@ -46,6 +51,8 @@ public class Lexer {
     /* getTokens: This is a function to get the next character from the input file and find out the character class */
     public void getTokens()
     {
+        if(charIdx < fileContent.length())
+        {
         currentChar = fileContent.charAt(charIdx);
         charIdx++;
         if(Character.isLetter(currentChar)){
@@ -57,6 +64,7 @@ public class Lexer {
         else{
             charClass = UNKNOWN;
         }
+    }
     }
 
 /* ******************************************************************************************************* */
@@ -184,9 +192,10 @@ public class Lexer {
                 currentToken = Tokens.SUB_OP.tokenCode;
                 break;
             case "*":
-                if(fileContent.charAt(charIdx++) == '*')
+                if(currentChar == '*')
                 {
-                    charIdx++;
+                    addChar();
+                    getTokens();
                     currentToken = Tokens.EXP_OP.tokenCode;
                     break;
                 }
@@ -202,47 +211,56 @@ public class Lexer {
                 currentToken = Tokens.RIGHT_PAREN.tokenCode;
                 break;
             case ">":
+                if(currentChar == '=')
+                {
+                    addChar();
+                    getTokens();
+                    currentToken = Tokens.GREAT_EQ_OP.tokenCode;
+                    break;
+                }
                 currentToken = Tokens.GREAT_OP.tokenCode;
                 break;
             case "<":
+                if(currentChar == '=')
+                {
+                    addChar();
+                    getTokens();
+                    currentToken = Tokens.LESS_EQ_OP.tokenCode;
+                    break;
+                }
                 currentToken = Tokens.LESS_OP.tokenCode;
                 break;
-            case ">=":
-                currentToken = Tokens.GREAT_EQ_OP.tokenCode;
-                break;
-            case "<=":
-                currentToken = Tokens.LESS_EQ_OP.tokenCode;
-                break;
             case "=":
-                if(fileContent.charAt(charIdx++) == '=')
+                if(currentChar == '=')
                 {
-                    charIdx++;
+                    addChar();
+                    getTokens();
                     currentToken = Tokens.EQUAL_OP.tokenCode;
                     break;
                 }
                 currentToken = Tokens.EQUAL_ASSIGN.tokenCode;
                 break;
             case "!":
-                if(fileContent.charAt(charIdx++) == '=')
+                if(currentChar == '=')
                 {
-                    charIdx++;
+                    addChar();
+                    getTokens();
                     currentToken = Tokens.NOT_EQUAL_OP.tokenCode;
                     break;
                 }
-                else if(fileContent.charAt(charIdx++) == '!')
+                else if(currentChar == '!')
                 {
-                    charIdx++;
+                    addChar();
+                    getTokens();
                     currentToken = Tokens.LOGICAL_NOT.tokenCode;
                     break;
                 }
                 currentToken = Tokens.UNARY_NEG_OP.tokenCode;
                 break;
             case "&":
-                charIdx++;
                 currentToken = Tokens.LOGICAL_AND.tokenCode;
                 break;
             case "|":
-                charIdx++;
                 currentToken = Tokens.LOGICAL_OR.tokenCode;
                 break;
             case "{":
@@ -253,6 +271,9 @@ public class Lexer {
                 break;
             case ";":
                 currentToken = Tokens.PARAM_SEP.tokenCode;
+                break;
+            default:
+                currentToken = EOF;
                 break;
         }
     }
@@ -325,6 +346,8 @@ public class Lexer {
                     break;
                 }
                 else{
+                    addChar();
+                    getTokens();
                     identifyUnknowns();
                     break;
                 }
@@ -333,7 +356,10 @@ public class Lexer {
                 lexeme = "";
                 break;
         }
-        System.out.println("Lexeme: " + lexeme + ", code: " + currentToken);
+        //System.out.println("Lexeme: " + lexeme + ", code: " + currentToken);
+        tokensList.add(new Token(lexeme, currentToken));
+
+        lexeme = "";
     }
 
 }
@@ -429,7 +455,7 @@ class Tokens{
         LESS_OP = new Token("<", 38);
         GREAT_EQ_OP = new Token(">=", 39);
         LESS_EQ_OP = new Token("<=", 40);
-        EQUAL_OP = new Token("=", 41);
+        EQUAL_OP = new Token("==", 41);
         NOT_EQUAL_OP = new Token("!=", 42);
         UNARY_NEG_OP = new Token("!", 43);
         LOGICAL_NOT = new Token("!!", 44);
