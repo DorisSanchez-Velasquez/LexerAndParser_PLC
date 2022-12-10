@@ -93,6 +93,15 @@ public class Lexer {
     /* identifyKeyword: This function is to check if the current lexeme is equal to any keyword in the language and match the token code  */
     public void identifyKeyword(){
          switch(lexeme){
+            case "launch":
+                currentToken = Tokens.BEGIN_KEY.tokenCode;
+                break;
+            case "terminate":
+                currentToken = Tokens.END_KEY.tokenCode;
+                break;
+            case "declare":
+                currentToken = Tokens.DECLARE_KEY.tokenCode;
+                break;
             case "assume":
                  currentToken = Tokens.IF_KEY.tokenCode;
                  break;
@@ -149,6 +158,17 @@ public class Lexer {
         else if(lexeme.matches('"' + Tokens.STRING_LITERAL.lexeme + '"'))
         {
             currentToken = Tokens.STRING_LITERAL.tokenCode;
+        }
+        else if(lexeme.matches(Tokens.VAR_ID.lexeme))
+        {
+            currentToken = Tokens.VAR_ID.tokenCode;
+        }
+        else if(lexeme.matches(Tokens.FUNC_ID.lexeme))
+        {
+            currentToken = Tokens.FUNC_ID.tokenCode;
+        }
+        else{
+            currentToken = EOF;
         }
     }
 
@@ -280,7 +300,7 @@ public class Lexer {
                     identifyVariableType();
                     break;
                 }
-                else if(currentChar == '?')
+                else if(currentChar == '@')
                 {
                     addChar();
                     getTokens();
@@ -333,6 +353,11 @@ class Tokens{
     static Token CHAR_LITER;
     static Token STRING_LITERAL;
 
+    //Token Code For Declaraction Statement Keywords
+    static Token BEGIN_KEY;
+    static Token END_KEY;
+    static Token DECLARE_KEY;
+
     //Token Code For Selection Statements Keywords
     static Token IF_KEY;
 
@@ -382,6 +407,9 @@ class Tokens{
 
         IF_KEY = new Token("assume", 15);
         LOOP_KEY = new Token("reiterate", 16);
+        BEGIN_KEY = new Token("launch", 17);
+        END_KEY = new Token("terminate", 18);
+        DECLARE_KEY = new Token("declare", 19);
 
         STR_DT_KEY = new Token("WORD", 20);
         NATURAL_DT_KEY = new Token("NUM", 21);
@@ -411,7 +439,7 @@ class Tokens{
         RIGHT_BRACKET = new Token("}", 48);
         PARAM_SEP = new Token(";", 49);
 
-        VAR_ID  = new Token("?[A-Za-z_]+", 50);
+        VAR_ID  = new Token("@[A-Za-z_]+", 50);
         FUNC_ID  = new Token("#[A-Za-z]+", 51);
     }
 }

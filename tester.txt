@@ -1,1 +1,9 @@
-assume ?x #func
+launch
+    declare NUM @x = 95;
+    declare HALF_NUM @Y = 8.5;
+
+    assume(@x > @y)
+    {
+        @x = @x + @y;
+    }
+terminate
