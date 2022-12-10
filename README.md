@@ -56,6 +56,30 @@ These are the rules for recognizing all lexemes as their proper token and define
 | RIGHT_BRACKET | Token to identify the right curly bracket | } | 48 |
 | PARAM_SEP | Token to identify the parameter separator and end of line character | ; | 49 |
 | VAR_ID| Token ot identify the variable identifier | "@[A-Za-z_]+" | 50 |
-| FUNC_ID | Token to identify the function identifier | "#[A-Za-z]+" | 51 | 
+| FUNC_ID | Token to identify the function identifier | "#[A-Za-z]+" | 51 |
 
+## Denotational Semantics and Production Rules
+- Use Denotation Semantics to define your selection statement
+- Use Denotational Semantics to define your loop statement
+- Use Denotation Semantics to define your Expr Statement
+- Use Denotational Semantics to redefine your Expr statement so it can return a Boolean solution
+
+## Attribute Grammar And Production Rules
+Define the attribute grammar for your assignment statement, make sure it follow the following rules
+- String + String does concatenation
+- String * Natural repeats the Natural
+- Assign bool to natural is allowed
+- Assign natural to bool is allowed
+- Assign char to natural is allowed
+- Assign natural to char is allowed
+- Assign natural to real is allowed 
+- No other types are allowed to be assigned to other outside of their own
+- Dividing by zero is an error
+- Modulo operating by zero is an error
+
+## Valid Assignment Statements
+Choose 3 syntactically valid assignment statements with at least 7 tokens to show these rules failing or passing semantic rules
+
+## Axiomatic Semantics
+Find weakest preconditions: 
 
