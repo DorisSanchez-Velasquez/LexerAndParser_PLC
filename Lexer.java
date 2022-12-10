@@ -1,5 +1,4 @@
 import java.util.*;
-import java.io.*;
 
 public class Lexer {
     /* GLOBAL DECLARATIONS */
@@ -25,7 +24,6 @@ public class Lexer {
         this.fileContent = fileContent;
         this.tokensList = new ArrayList<Token>();
         tokenDriver();
-        tokenize();
     }
 
     public List<Token> tokenize()

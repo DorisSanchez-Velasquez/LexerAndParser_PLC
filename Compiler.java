@@ -5,9 +5,12 @@ public class Compiler {
     //Takes in an input file
     //Converts it to one input string
     String fileContents;
+    List<Token> tokens;
     Compiler(String filepath){
         this.fileContents = getFileContents(filepath);
         Lexer lexer = new Lexer(fileContents);
+        tokens = lexer.tokenize();
+        
     }
 
     public String getFileContents(String filepath)
