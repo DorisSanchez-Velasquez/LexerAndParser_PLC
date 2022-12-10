@@ -24,7 +24,7 @@ public class Lexer {
         new Tokens();
         this.fileContent = fileContent;
         this.tokens = null;
-        getTokens();
+        tokenDriver();
     }
 
     public List<Token> tokenize()
@@ -32,27 +32,31 @@ public class Lexer {
         return tokens;
     }
 
+    public void tokenDriver()
+    {
+        getTokens();
+        while(charIdx < fileContent.length() && currentToken != EOF)
+        {
+            lexerAnalyzer();
+            lexeme = "";
+        }
+    }
+
 /* ******************************************************************************************************* */
     /* getTokens: This is a function to get the next character from the input file and find out the character class */
     public void getTokens()
     {
-          while(charIdx < fileContent.length())
-          {
-                currentChar = fileContent.charAt(charIdx);
-                charIdx++;
-                if(Character.isLetter(currentChar)){
-                    charClass = LETTER;
-                }
-                else if(Character.isDigit(currentChar)){
-                    charClass = DIGIT;
-                }
-                else{
-                    charClass = EOF;
-                }
-
-                lexeme = "";
-                lexerAnalyzer();
-          }
+        currentChar = fileContent.charAt(charIdx);
+        charIdx++;
+        if(Character.isLetter(currentChar)){
+            charClass = LETTER;
+        }
+        else if(Character.isDigit(currentChar)){
+            charClass = DIGIT;
+        }
+        else{
+            charClass = UNKNOWN;
+        }
     }
 
 /* ******************************************************************************************************* */
@@ -75,7 +79,7 @@ public class Lexer {
         if(currentChar == '/' && fileContent.charAt(charIdx++) == '*')
         {
             charIdx += 2;
-            while(currentChar != '*' && fileContent.charAt(charIdx++) != '/')
+            while(currentChar != '*' && fileContent.charAt(charIdx++) != '/' && charIdx++ < fileContent.length())
             {
                 charIdx++;
                 currentChar = fileContent.charAt(charIdx);
@@ -116,7 +120,121 @@ public class Lexer {
             case "funcs":
                 currentToken = Tokens.FUNC_ID.tokenCode;
                 break;
+            default:
+                if(lexeme.matches(Tokens.BOOL_LITERAL.lexeme))
+                {
+                    currentToken = Tokens.BOOL_LITERAL.tokenCode;
+                    break;
+                }
+                currentToken = EOF;
+                break;
          }
+    }
+/* ******************************************************************************************************* */
+    /* identifyVariableType: This is a function to match the regex of the lexeme to a natural or real number */   
+    public void identifyVariableType()
+    {
+        if(lexeme.matches(Tokens.REAL_LITERAL.lexeme))
+        {
+            currentToken = Tokens.REAL_LITERAL.tokenCode;
+        }
+        else if(lexeme.matches(Tokens.NATURAL_LITERAL.lexeme))
+        {
+            currentToken = Tokens.NATURAL_LITERAL.tokenCode;
+        }
+        else if(lexeme.matches('"' + Tokens.CHAR_LITER.lexeme + '"'))
+        {
+            currentToken = Tokens.CHAR_LITER.tokenCode;
+        }
+        else if(lexeme.matches('"' + Tokens.STRING_LITERAL.lexeme + '"'))
+        {
+            currentToken = Tokens.STRING_LITERAL.tokenCode;
+        }
+    }
+
+/* ******************************************************************************************************* */
+    /* identifyUnknowns: This is a function to recognize and find token codes for all special symbols */
+    public void identifyUnknowns()
+    {
+        switch(lexeme){
+            case "+":
+                currentToken = Tokens.ADD_OP.tokenCode;
+                break;
+            case "-":
+                currentToken = Tokens.SUB_OP.tokenCode;
+                break;
+            case "*":
+                if(fileContent.charAt(charIdx++) == '*')
+                {
+                    charIdx++;
+                    currentToken = Tokens.EXP_OP.tokenCode;
+                    break;
+                }
+                currentToken = Tokens.MULT_OP.tokenCode;
+                break;
+            case "/":
+                currentToken = Tokens.DIV_OP.tokenCode;
+                break;
+            case "(":
+                currentToken = Tokens.LEFT_PAREN.tokenCode;
+                break;
+            case ")":
+                currentToken = Tokens.RIGHT_PAREN.tokenCode;
+                break;
+            case ">":
+                currentToken = Tokens.GREAT_OP.tokenCode;
+                break;
+            case "<":
+                currentToken = Tokens.LESS_OP.tokenCode;
+                break;
+            case ">=":
+                currentToken = Tokens.GREAT_EQ_OP.tokenCode;
+                break;
+            case "<=":
+                currentToken = Tokens.LESS_EQ_OP.tokenCode;
+                break;
+            case "=":
+                if(fileContent.charAt(charIdx++) == '=')
+                {
+                    charIdx++;
+                    currentToken = Tokens.EQUAL_OP.tokenCode;
+                    break;
+                }
+                currentToken = Tokens.EQUAL_ASSIGN.tokenCode;
+                break;
+            case "!":
+                if(fileContent.charAt(charIdx++) == '=')
+                {
+                    charIdx++;
+                    currentToken = Tokens.NOT_EQUAL_OP.tokenCode;
+                    break;
+                }
+                else if(fileContent.charAt(charIdx++) == '!')
+                {
+                    charIdx++;
+                    currentToken = Tokens.LOGICAL_NOT.tokenCode;
+                    break;
+                }
+                currentToken = Tokens.UNARY_NEG_OP.tokenCode;
+                break;
+            case "&":
+                charIdx++;
+                currentToken = Tokens.LOGICAL_AND.tokenCode;
+                break;
+            case "|":
+                charIdx++;
+                currentToken = Tokens.LOGICAL_OR.tokenCode;
+                break;
+            case "{":
+                currentToken = Tokens.LEFT_BRACKET.tokenCode;
+                break;
+            case "}":
+                currentToken = Tokens.RIGHT_BRACKET.tokenCode;
+                break;
+            case ";":
+                currentToken = Tokens.PARAM_SEP.tokenCode;
+                break;
+        }
     }
 
 /* ******************************************************************************************************* */
@@ -134,11 +252,73 @@ public class Lexer {
                 }
                 identifyKeyword();
                 break;
-
+            case DIGIT:
+                addChar();
+                getTokens();
+                while(charClass == DIGIT || charClass == UNKNOWN && currentChar == '.')
+                {
+                    addChar();
+                    getTokens();
+                }
+                identifyVariableType();
+                break;
+            case UNKNOWN:
+                if(currentChar == '.' && Character.isDigit(fileContent.charAt(charIdx++)))
+                {
+                    addChar();
+                    getTokens();
+                }
+                else if(currentChar == '"')
+                {
+                    addChar();
+                    getTokens();
+                    while(charClass == LETTER || charClass == UNKNOWN && currentChar == '"')
+                    {
+                        addChar();
+                        getTokens();
+                    }
+                    identifyVariableType();
+                    break;
+                }
+                else if(currentChar == '?')
+                {
+                    addChar();
+                    getTokens();
+                    while(charClass == LETTER || charClass == UNKNOWN && currentChar == '_')
+                    {
+                        addChar();
+                        getTokens();
+                    }
+                    identifyVariableType();
+                    break;
+                }
+                else if(currentChar == '#')
+                {
+                    addChar();
+                    getTokens();
+                    while(charClass == LETTER)
+                    {
+                        addChar();
+                        getTokens();
+                    }
+                    identifyVariableType();
+                    break;
+                }
+                else{
+                    identifyUnknowns();
+                    break;
+                }
+            case EOF:
+                currentToken = EOF;
+                lexeme = "";
+                break;
         }
+        System.out.println("Lexeme: " + lexeme + ", code: " + currentToken);
     }
 
 }
+
+
 
 
 
@@ -187,16 +367,17 @@ class Tokens{
     static Token LEFT_BRACKET;
     static Token RIGHT_BRACKET;
     static Token PARAM_SEP;
+    static Token EQUAL_ASSIGN;
 
     //Token Code For Var and Function Identifier
     static Token VAR_ID;
     static Token FUNC_ID;
 
     Tokens(){
-        REAL_LITERAL = new Token("[0-9]+/.[0-9]+", 10);
+        REAL_LITERAL = new Token("[0-9]+.[0-9]+", 10);
         NATURAL_LITERAL = new Token("[0-9]+", 11);
         BOOL_LITERAL = new Token("(True|False)", 12);
-        CHAR_LITER = new Token("[A-Za-z0-9]+{1}", 13);
+        CHAR_LITER = new Token("[A-Za-z0-9]", 13);
         STRING_LITERAL = new Token("[A-Za-z0-9]+", 14);
 
         IF_KEY = new Token("assume", 15);
@@ -208,6 +389,7 @@ class Tokens{
         REAL_DT_KEY = new Token("HALF_NUM", 23);
         BOOL_DT_KEY = new Token("BOOL", 24);
 
+        EQUAL_ASSIGN = new Token("=", 29);
         ADD_OP = new Token("+", 30);
         SUB_OP = new Token("-", 31);
         MULT_OP = new Token("*", 32);
@@ -229,7 +411,7 @@ class Tokens{
         RIGHT_BRACKET = new Token("}", 48);
         PARAM_SEP = new Token(";", 49);
 
-        VAR_ID  = new Token("vars", 50);
-        FUNC_ID  = new Token("funcs", 51);
+        VAR_ID  = new Token("?[A-Za-z_]+", 50);
+        FUNC_ID  = new Token("#[A-Za-z]+", 51);
     }
 }
